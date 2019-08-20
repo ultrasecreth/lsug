@@ -7,7 +7,7 @@ import com.github.bbonanno.lsug.Event.OrderStatusEvent
 
 import scala.collection.mutable.ListBuffer
 
-class ExecutionActor[Z[_]: Monad](httpClient: HttpClient[Z], eventLog: EventLogger[Z], credentials: Credentials) {
+class ExecutionActor[F[_]: Monad](httpClient: HttpClient[F], eventLog: EventLogger[F], credentials: Credentials) {
 
   private val stash = ListBuffer.empty[Any]
 
@@ -16,7 +16,7 @@ class ExecutionActor[Z[_]: Monad](httpClient: HttpClient[Z], eventLog: EventLogg
   }
   var ! : PartialFunction[Any, Unit] = catchAll
 
-  private def login(): Z[Unit] =
+  private def login(): F[Unit] =
     httpClient
       .login(credentials)
       .map {

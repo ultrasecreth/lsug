@@ -25,13 +25,13 @@ object HttpClient {
   type ClientResponse[A] = Either[ClientError, A]
 }
 
-trait HttpClient[Z[_]] {
+trait HttpClient[F[_]] {
 
-  def login(credentials: Credentials): Z[ClientResponse[AuthToken]]
+  def login(credentials: Credentials): F[ClientResponse[AuthToken]]
 
-  def getRates(ccyPairs: Set[CcyPair])(implicit token: AuthToken): Z[ClientResponse[Prices]]
+  def getRates(ccyPairs: Set[CcyPair])(implicit token: AuthToken): F[ClientResponse[Prices]]
 
-  def submitOrder(limitOrder: LimitOrder)(implicit token: AuthToken): Z[ClientResponse[OrderStatus]]
+  def submitOrder(limitOrder: LimitOrder)(implicit token: AuthToken): F[ClientResponse[OrderStatus]]
 
 }
 
