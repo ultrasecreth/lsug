@@ -2,8 +2,6 @@ package com.github.bbonanno.lsug
 
 import com.github.bbonanno.lsug.HttpClient.ClientResponse
 
-import scala.concurrent.Future
-
 case class Credentials(email: String, apiKey: String)
 case class AuthToken(token: String)
 case class Ccy(iso: String) {
@@ -27,13 +25,13 @@ object HttpClient {
   type ClientResponse[A] = Either[ClientError, A]
 }
 
-trait HttpClient {
+trait HttpClient[Z[_]] {
 
-  def login(credentials: Credentials): Future[ClientResponse[AuthToken]]
+  def login(credentials: Credentials): Z[ClientResponse[AuthToken]]
 
-  def getRates(ccyPairs: Set[CcyPair])(implicit token: AuthToken): Future[ClientResponse[Prices]]
+  def getRates(ccyPairs: Set[CcyPair])(implicit token: AuthToken): Z[ClientResponse[Prices]]
 
-  def submitOrder(limitOrder: LimitOrder)(implicit token: AuthToken): Future[ClientResponse[OrderStatus]]
+  def submitOrder(limitOrder: LimitOrder)(implicit token: AuthToken): Z[ClientResponse[OrderStatus]]
 
 }
 

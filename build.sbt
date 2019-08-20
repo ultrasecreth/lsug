@@ -10,3 +10,7 @@ libraryDependencies ++= Seq(
   "org.mockito"   %% "mockito-scala-scalatest" % "1.5.14" % "test",
   "org.mockito"   %% "mockito-scala-cats"      % "1.5.14" % "test"
 )
+
+scalacOptions ++= Seq(
+  "-language:higherKinds",
+)

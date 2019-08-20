@@ -1,13 +1,11 @@
 package com.github.bbonanno.lsug
 
+import cats._
 import cats.implicits._
 import com.github.bbonanno.lsug.ClientError.Unauthorized
 import org.mockito.cats.IdiomaticMockitoCats
 import org.mockito.scalatest.IdiomaticMockito
-import org.scalatest.concurrent.Eventually
 import org.scalatest.{FreeSpec, Matchers, OptionValues}
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Pros:
@@ -25,7 +23,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ExecutionActorTest_IdiomaticMockitoCats
     extends FreeSpec
     with Matchers
-    with Eventually
     with OptionValues
     with TestBuilder
     with IdiomaticMockito
@@ -35,10 +32,10 @@ class ExecutionActorTest_IdiomaticMockitoCats
     implicit val token1 = AuthToken("good token")
     val token2          = AuthToken("good token2")
 
-    val credentials            = Credentials("test-email", "test-key")
-    val httpClient: HttpClient = mock[HttpClient].login(credentials) returnsF Right(token1) // just to show non composed applicative
-    val eventLogger            = mock[EventLogger]
-    val testObj                = new ExecutionActor(httpClient, eventLogger, credentials)
+    val credentials                = Credentials("test-email", "test-key")
+    val httpClient: HttpClient[Id] = mock[HttpClient[Id]].login(credentials) returnsFG token1
+    val eventLogger                = mock[EventLogger[Id]]
+    val testObj                    = new ExecutionActor(httpClient, eventLogger, credentials)
   }
 
   "ExecutionActor" - {
@@ -54,9 +51,7 @@ class ExecutionActorTest_IdiomaticMockitoCats
 
       testObj ! order
 
-      eventually {
-        eventLogger.record(orderStatusEvent(status)) was called
-      }
+      eventLogger.record(orderStatusEvent(status)) was called
     }
 
     "should re-login if the token expires" in new Setup {
@@ -68,9 +63,7 @@ class ExecutionActorTest_IdiomaticMockitoCats
 
       testObj ! order
 
-      eventually {
-        eventLogger.record(orderStatusEvent(status)) was called
-      }
+      eventLogger.record(orderStatusEvent(status)) was called
     }
   }
 }

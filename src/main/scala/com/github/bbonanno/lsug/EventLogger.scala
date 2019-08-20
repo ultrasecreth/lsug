@@ -1,7 +1,7 @@
 package com.github.bbonanno.lsug
 
-trait EventLogger {
-  def record(e: Event)
+trait EventLogger[Z[_]] {
+  def record(e: Event): Z[Unit]
 }
 
 sealed trait Event

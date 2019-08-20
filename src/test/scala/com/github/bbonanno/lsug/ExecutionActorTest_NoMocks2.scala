@@ -1,12 +1,11 @@
 package com.github.bbonanno.lsug
 
+import cats._
 import com.github.bbonanno.lsug.ClientError.Unauthorized
 import com.github.bbonanno.lsug.HttpClient.ClientResponse
-import org.scalatest.concurrent.Eventually
 import org.scalatest.{FreeSpec, Matchers, OptionValues}
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.Future
 
 /**
  * Pros:
@@ -19,33 +18,33 @@ import scala.concurrent.Future
  *  most of the noise is out of the test, but that means I can't just look at the test to understand whats going on
  *  still has the effort to write and ensure the stub does what I want
  */
-class ExecutionActorTest_NoMocks2 extends FreeSpec with Matchers with Eventually with OptionValues with TestBuilder {
+class ExecutionActorTest_NoMocks2 extends FreeSpec with Matchers with OptionValues with TestBuilder {
 
   val token1 = AuthToken("good token")
   val token2 = AuthToken("good token2")
 
   class HttpClientStub(tokens: Iterator[ClientResponse[AuthToken]] = Iterator(Right(token1)),
                        statuses: Iterator[ClientResponse[OrderStatus]] = Iterator.empty)
-      extends HttpClient {
+      extends HttpClient[Id] {
 
     var _credentials: Option[Credentials] = None
-    override def login(credentials: Credentials): Future[ClientResponse[AuthToken]] = {
+    override def login(credentials: Credentials): ClientResponse[AuthToken] = {
       _credentials = Some(credentials)
-      Future.successful(tokens.next())
+      tokens.next()
     }
 
     val _tokens      = ListBuffer.empty[AuthToken]
     val _limitOrders = ListBuffer.empty[LimitOrder]
-    override def submitOrder(limitOrder: LimitOrder)(implicit token: AuthToken): Future[ClientResponse[OrderStatus]] = {
+    override def submitOrder(limitOrder: LimitOrder)(implicit token: AuthToken): ClientResponse[OrderStatus] = {
       _tokens += token
       _limitOrders += limitOrder
-      Future.successful(statuses.next())
+      statuses.next()
     }
 
-    override def getRates(ccyPairs: Set[CcyPair])(implicit token: AuthToken): Future[ClientResponse[Prices]] = ???
+    override def getRates(ccyPairs: Set[CcyPair])(implicit token: AuthToken): ClientResponse[Prices] = ???
   }
 
-  class EventLoggerStub extends EventLogger {
+  class EventLoggerStub extends EventLogger[Id] {
     val _events                         = ListBuffer.empty[Event]
     override def record(e: Event): Unit = _events += e
   }
@@ -73,11 +72,9 @@ class ExecutionActorTest_NoMocks2 extends FreeSpec with Matchers with Eventually
 
       testObj ! order
 
-      eventually {
-        httpClient._tokens should contain only token1
-        httpClient._limitOrders should contain only order
-        eventLogger._events should contain only orderStatusEvent(status)
-      }
+      httpClient._tokens should contain only token1
+      httpClient._limitOrders should contain only order
+      eventLogger._events should contain only orderStatusEvent(status)
     }
 
     "should re-login if the token expires" in new Setup {
@@ -92,12 +89,10 @@ class ExecutionActorTest_NoMocks2 extends FreeSpec with Matchers with Eventually
 
       testObj ! order
 
-      eventually {
-        httpClient._tokens should contain inOrderOnly (token1, token2)
-        httpClient._limitOrders should have size 2
-        httpClient._limitOrders.toSet should contain only order
-        eventLogger._events should contain only orderStatusEvent(status)
-      }
+      httpClient._tokens should contain inOrderOnly (token1, token2)
+      httpClient._limitOrders should have size 2
+      httpClient._limitOrders.toSet should contain only order
+      eventLogger._events should contain only orderStatusEvent(status)
     }
   }
 }

@@ -1,15 +1,13 @@
 package com.github.bbonanno.lsug
 
+import cats._
+import cats.implicits._
 import com.github.bbonanno.lsug.ClientError.Unauthorized
 import com.github.bbonanno.lsug.Event.OrderStatusEvent
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Success
 
-class ExecutionActor(httpClient: HttpClient, eventLog: EventLogger, credentials: Credentials) {
-
-  login()
+class ExecutionActor[Z[_]: Monad](httpClient: HttpClient[Z], eventLog: EventLogger[Z], credentials: Credentials) {
 
   private val stash = ListBuffer.empty[Any]
 
@@ -18,11 +16,11 @@ class ExecutionActor(httpClient: HttpClient, eventLog: EventLogger, credentials:
   }
   var ! : PartialFunction[Any, Unit] = catchAll
 
-  private def login() =
+  private def login(): Z[Unit] =
     httpClient
       .login(credentials)
-      .onComplete {
-        case Success(Right(token: AuthToken)) =>
+      .map {
+        case Right(token: AuthToken) =>
           println(s"Login successful, token: $token")
           this.! = onMessage(token)
           stash.foreach(m => this.!(m))
@@ -33,16 +31,18 @@ class ExecutionActor(httpClient: HttpClient, eventLog: EventLogger, credentials:
     case l: LimitOrder =>
       httpClient
         .submitOrder(l)
-        .onComplete {
-          case Success(Right(status)) =>
+        .flatMap {
+          case Right(status) =>
             println(s"Sending $l with $token")
             eventLog.record(new OrderStatusEvent(status))
-          case Success(Left(Unauthorized(error))) =>
+          case Left(Unauthorized(error)) =>
             println(s"Got logged out: $error")
             stash += l
             this.! = catchAll
             login()
         }
   }
+
+  login()
 
 }

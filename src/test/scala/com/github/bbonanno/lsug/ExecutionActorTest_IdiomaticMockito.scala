@@ -1,11 +1,9 @@
 package com.github.bbonanno.lsug
 
+import cats._
 import com.github.bbonanno.lsug.ClientError.Unauthorized
 import org.mockito.scalatest.IdiomaticMockito
-import org.scalatest.concurrent.Eventually
 import org.scalatest.{FreeSpec, Matchers, OptionValues}
-
-import scala.concurrent.Future
 
 /**
  * Pros:
@@ -20,22 +18,16 @@ import scala.concurrent.Future
  *  values to be returned are a bit verbose
  *  I have an extra dependency
  */
-class ExecutionActorTest_IdiomaticMockito
-    extends FreeSpec
-    with Matchers
-    with Eventually
-    with OptionValues
-    with TestBuilder
-    with IdiomaticMockito {
+class ExecutionActorTest_IdiomaticMockito extends FreeSpec with Matchers with OptionValues with TestBuilder with IdiomaticMockito {
 
   trait Setup {
     implicit val token1 = AuthToken("good token")
     val token2          = AuthToken("good token2")
 
-    val credentials            = Credentials("test-email", "test-key")
-    val httpClient: HttpClient = mock[HttpClient].login(credentials) returns Future.successful(Right(token1))
-    val eventLogger            = mock[EventLogger]
-    val testObj                = new ExecutionActor(httpClient, eventLogger, credentials)
+    val credentials                = Credentials("test-email", "test-key")
+    val httpClient: HttpClient[Id] = mock[HttpClient[Id]].login(credentials) returns Right(token1)
+    val eventLogger                = mock[EventLogger[Id]]
+    val testObj                    = new ExecutionActor(httpClient, eventLogger, credentials)
   }
 
   "ExecutionActor" - {
@@ -47,27 +39,23 @@ class ExecutionActorTest_IdiomaticMockito
     "should send an order and record the result" in new Setup {
       val status = orderStatus(100.GBP at 1.2999.USD)
       val order  = limitOrder(100.GBP at 1.3.USD)
-      httpClient.submitOrder(order) returns Future.successful(Right(status))
+      httpClient.submitOrder(order) returns Right(status)
 
       testObj ! order
 
-      eventually {
-        eventLogger.record(orderStatusEvent(status)) was called
-      }
+      eventLogger.record(orderStatusEvent(status)) was called
     }
 
     "should re-login if the token expires" in new Setup {
-      httpClient.login(credentials) returns Future.successful(Right(token2))
+      httpClient.login(credentials) returns Right(token2)
       val status = orderStatus(100.GBP at 1.2999.USD)
       val order  = limitOrder(100.GBP at 1.3.USD)
-      httpClient.submitOrder(order) returns Future.successful(Left(Unauthorized("out!")))
-      httpClient.submitOrder(order)(token2) returns Future.successful(Right(status))
+      httpClient.submitOrder(order) returns Left(Unauthorized("out!"))
+      httpClient.submitOrder(order)(token2) returns Right(status)
 
       testObj ! order
 
-      eventually {
-        eventLogger.record(orderStatusEvent(status)) was called
-      }
+      eventLogger.record(orderStatusEvent(status)) was called
     }
   }
 }
