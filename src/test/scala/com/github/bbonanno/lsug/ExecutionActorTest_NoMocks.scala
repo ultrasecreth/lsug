@@ -59,6 +59,7 @@ class ExecutionActorTest_NoMocks extends FreeSpec with Matchers with Eventually 
     }
 
     "should send an order and record the result" in new Setup {
+      //      val status = OrderStatus(Quantity(100, Ccy("GBP")), Price(1.2999, CcyPair(Ccy("GBP"), Ccy("USD"))))
       val status = orderStatus(100.GBP at 1.2999.USD)
       val httpClient = new HttpClientStub {
         val _tokens      = ListBuffer.empty[AuthToken]
