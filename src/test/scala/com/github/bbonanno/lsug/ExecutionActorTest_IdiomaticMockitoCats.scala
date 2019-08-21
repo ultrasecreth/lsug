@@ -33,7 +33,7 @@ class ExecutionActorTest_IdiomaticMockitoCats
     val token2          = AuthToken("good token2")
 
     val credentials                = Credentials("test-email", "test-key")
-    val httpClient: HttpClient[Id] = mock[HttpClient[Id]].login(credentials) returnsFG token1
+    val httpClient: HttpClient[Id] = mock[HttpClient[Id]].login(credentials) returnsF Right(token1) // just to show non composed applicative
     val eventLogger                = mock[EventLogger[Id]]
     val testObj                    = new ExecutionActor(httpClient, eventLogger, credentials)
   }
