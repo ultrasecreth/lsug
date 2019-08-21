@@ -53,7 +53,7 @@ class ExecutionActorTest_JavaMockito extends FreeSpec with Matchers with Eventua
         verify(httpClient).submitOrder(order)(token1)
         val captor: ArgumentCaptor[Event] = ArgumentCaptor.forClass(classOf[Event])
         verify(eventLogger).record(captor.capture())
-        captor.getValue should ===(OrderStatusEvent("", 0L, status))
+        captor.getValue should ===(orderStatusEvent(status))
       }
     }
 
@@ -73,7 +73,7 @@ class ExecutionActorTest_JavaMockito extends FreeSpec with Matchers with Eventua
         verify(httpClient).submitOrder(order)(token2)
         val captor: ArgumentCaptor[Event] = ArgumentCaptor.forClass(classOf[Event])
         verify(eventLogger).record(captor.capture())
-        captor.getValue should ===(OrderStatusEvent("", 0L, status))
+        captor.getValue should ===(orderStatusEvent(status))
       }
     }
   }

@@ -38,7 +38,7 @@ class ExecutionActor(httpClient: HttpClient, eventLog: EventLogger, credentials:
         .onComplete {
           case Success(Right(status)) =>
             println(s"Sending $l with $token")
-            eventLog.record(OrderStatusEvent(UUID.randomUUID().toString, System.currentTimeMillis(), status))
+            eventLog.record(new OrderStatusEvent(status))
           case Success(Left(Unauthorized(error))) =>
             println(s"Got logged out: $error")
             stash += l

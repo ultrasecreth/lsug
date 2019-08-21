@@ -49,9 +49,9 @@ class ExecutionActorTest_MockitoScala extends FreeSpec with Matchers with Eventu
       eventually {
         val captor = ArgCaptor[Event]
         verify(eventLogger).record(captor)
-        captor.value should ===(OrderStatusEvent("", 0L, status))
+        captor.value should ===(orderStatusEvent(status))
         //or
-        captor hasCaptured OrderStatusEvent("", 0L, status)
+        captor hasCaptured orderStatusEvent(status)
       }
     }
 
@@ -65,7 +65,7 @@ class ExecutionActorTest_MockitoScala extends FreeSpec with Matchers with Eventu
       testObj ! order
 
       eventually {
-        verify(eventLogger).record(eqTo(OrderStatusEvent("", 0L, status)))
+        verify(eventLogger).record(eqTo(orderStatusEvent(status)))
       }
     }
   }

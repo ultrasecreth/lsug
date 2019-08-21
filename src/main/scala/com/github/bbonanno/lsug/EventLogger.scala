@@ -6,6 +6,5 @@ trait EventLogger {
 
 sealed trait Event
 object Event {
-  case class OrderStatusEvent(id: String, timestamp: Long, orderStatus: OrderStatus) extends Event
-  case object AnotherEvent extends Event
+  class OrderStatusEvent(val orderStatus: OrderStatus) extends Event
 }

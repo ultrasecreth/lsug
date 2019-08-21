@@ -56,7 +56,7 @@ class ExecutionActorTest_IdiomaticMockitoCats
       testObj ! order
 
       eventually {
-        eventLogger.record(OrderStatusEvent("", 0L, status)) was called
+        eventLogger.record(orderStatusEvent(status)) was called
       }
     }
 
@@ -70,7 +70,7 @@ class ExecutionActorTest_IdiomaticMockitoCats
       testObj ! order
 
       eventually {
-        eventLogger.record(OrderStatusEvent("", 0L, status)) was called
+        eventLogger.record(orderStatusEvent(status)) was called
       }
     }
   }

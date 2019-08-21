@@ -77,7 +77,7 @@ class ExecutionActorTest_NoMocks2 extends FreeSpec with Matchers with Eventually
       eventually {
         httpClient._tokens should contain only token1
         httpClient._limitOrders should contain only order
-        eventLogger._events should contain only OrderStatusEvent("", 0L, status)
+        eventLogger._events should contain only orderStatusEvent(status)
       }
     }
 
@@ -97,7 +97,7 @@ class ExecutionActorTest_NoMocks2 extends FreeSpec with Matchers with Eventually
         httpClient._tokens should contain inOrderOnly (token1, token2)
         httpClient._limitOrders should have size 2
         httpClient._limitOrders.toSet should contain only order
-        eventLogger._events should contain only OrderStatusEvent("", 0L, status)
+        eventLogger._events should contain only orderStatusEvent(status)
       }
     }
   }
