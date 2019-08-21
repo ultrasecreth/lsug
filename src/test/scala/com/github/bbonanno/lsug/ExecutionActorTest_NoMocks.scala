@@ -21,9 +21,14 @@ import scala.concurrent.Future
  */
 class ExecutionActorTest_NoMocks extends FreeSpec with Matchers with Eventually with OptionValues with TestBuilder {
 
+  val token1 = AuthToken("good token")
+  val token2 = AuthToken("good token2")
+
+  val credentials = Credentials("test-email", "test-key")
+
   trait HttpClientStub extends HttpClient {
     override def login(credentials: Credentials): Future[ClientResponse[AuthToken]] =
-      Future.successful(Right(AuthToken("good token")))
+      Future.successful(Right(token1))
     override def submitOrder(limitOrder: LimitOrder)(implicit token: AuthToken): Future[ClientResponse[OrderStatus]] = ???
     override def getRates(ccyPairs: Set[CcyPair])(implicit token: AuthToken): Future[ClientResponse[Prices]]         = ???
   }
@@ -34,10 +39,6 @@ class ExecutionActorTest_NoMocks extends FreeSpec with Matchers with Eventually 
   }
 
   trait Setup {
-    val token1 = AuthToken("good token")
-    val token2 = AuthToken("good token2")
-
-    val credentials = Credentials("test-email", "test-key")
     val eventLogger = new EventLoggerStub
   }
 
