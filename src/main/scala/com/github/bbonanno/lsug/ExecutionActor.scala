@@ -11,7 +11,7 @@ import scala.util.Success
 
 class ExecutionActor(httpClient: HttpClient, eventLog: EventLogger, credentials: Credentials) {
 
-  login(Prices.Empty)
+  login()
 
   private val stash = ListBuffer.empty[Any]
 
@@ -20,18 +20,18 @@ class ExecutionActor(httpClient: HttpClient, eventLog: EventLogger, credentials:
   }
   var ! : PartialFunction[Any, Unit] = catchAll
 
-  private def login(prices: Prices) =
+  private def login() =
     httpClient
       .login(credentials)
       .onComplete {
         case Success(Right(token: AuthToken)) =>
           println(s"Login successful, token: $token")
-          this.! = onMessage(prices)(token)
+          this.! = onMessage(token)
           stash.foreach(m => this.!(m))
           stash.clear()
       }
 
-  def onMessage(prices: Prices)(implicit token: AuthToken): PartialFunction[Any, Unit] = {
+  def onMessage(implicit token: AuthToken): PartialFunction[Any, Unit] = {
     case l: LimitOrder =>
       httpClient
         .submitOrder(l)
@@ -43,7 +43,7 @@ class ExecutionActor(httpClient: HttpClient, eventLog: EventLogger, credentials:
             println(s"Got logged out: $error")
             stash += l
             this.! = catchAll
-            login(prices)
+            login()
         }
   }
 
