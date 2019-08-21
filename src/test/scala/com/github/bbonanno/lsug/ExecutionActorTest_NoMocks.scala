@@ -1,10 +1,9 @@
 package com.github.bbonanno.lsug
 
 import com.github.bbonanno.lsug.ClientError.Unauthorized
-import com.github.bbonanno.lsug.Event.OrderStatusEvent
 import com.github.bbonanno.lsug.HttpClient.ClientResponse
 import org.scalatest.concurrent.Eventually
-import org.scalatest.{ FreeSpec, Matchers, OptionValues }
+import org.scalatest.{FreeSpec, Matchers, OptionValues}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future

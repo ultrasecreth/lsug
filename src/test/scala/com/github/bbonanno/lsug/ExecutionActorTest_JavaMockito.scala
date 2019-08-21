@@ -1,12 +1,11 @@
 package com.github.bbonanno.lsug
 
 import com.github.bbonanno.lsug.ClientError.Unauthorized
-import com.github.bbonanno.lsug.Event.OrderStatusEvent
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.Eventually
-import org.scalatest.{ FreeSpec, Matchers, OptionValues }
+import org.scalatest.{FreeSpec, Matchers, OptionValues}
 import org.scalatestplus.mockito.MockitoSugar
 
 import scala.concurrent.Future

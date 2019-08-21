@@ -1,7 +1,5 @@
 package com.github.bbonanno.lsug
 
-import java.util.UUID
-
 import com.github.bbonanno.lsug.ClientError.Unauthorized
 import com.github.bbonanno.lsug.Event.OrderStatusEvent
 

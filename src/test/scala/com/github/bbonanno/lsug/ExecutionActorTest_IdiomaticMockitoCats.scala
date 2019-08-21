@@ -2,11 +2,10 @@ package com.github.bbonanno.lsug
 
 import cats.implicits._
 import com.github.bbonanno.lsug.ClientError.Unauthorized
-import com.github.bbonanno.lsug.Event.OrderStatusEvent
 import org.mockito.cats.IdiomaticMockitoCats
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.concurrent.Eventually
-import org.scalatest.{ FreeSpec, Matchers, OptionValues }
+import org.scalatest.{FreeSpec, Matchers, OptionValues}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

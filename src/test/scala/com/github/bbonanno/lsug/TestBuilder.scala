@@ -1,7 +1,7 @@
 package com.github.bbonanno.lsug
 
 import com.github.bbonanno.lsug.Event.OrderStatusEvent
-import org.scalactic.{ Equality, Prettifier }
+import org.scalactic.{Equality, Prettifier}
 
 trait TestBuilder {
 
